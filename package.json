@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/RoninS28/NodeJS-NetNinja#readme",
   "dependencies": {
+    "ejs": "^3.1.6",
     "express": "^4.17.2",
     "lodash": "^4.17.21"
   }
