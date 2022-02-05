@@ -1,4 +1,5 @@
 const express = require('express')
+const morgan = require('morgan')
 
 //* express app
 const app = express()
@@ -12,6 +13,31 @@ app.set('view engine', 'ejs')
 
 //* listen for requests
 app.listen(3000)
+
+// * Middleware
+// app.use((req, res, next) => {
+//     console.log('new request made:')
+//     console.log('host :', req.hostname)
+//     console.log('path :', req.path)
+//     console.log('method :', req.method)
+//     //* after the use method, the server does not know what to do next. hence we invoke the next method to tell them to proceed with the underlying code
+//     next()
+// })
+
+
+// * Middleware 2
+// app.use((req, res, next) => {
+//     console.log('in the next middleware')
+//     next()
+// })
+
+// middleware and static files
+
+// if you try to access a css file in inspect element -> network, it is not available and gives a 404 error
+// thus anything in the folder mentioned as an arg is made static i.e public
+app.use(express.static('public'))
+
+// app.use(morgan('tiny'))
 
 
 
