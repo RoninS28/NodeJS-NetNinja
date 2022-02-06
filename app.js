@@ -1,9 +1,22 @@
 const express = require('express')
 const morgan = require('morgan')
+const mongoose = require('mongoose')
+const Blog = require('./models/blog')
+
+
+
 
 //* express app
 const app = express()
 
+
+// connect to mongodb
+// password contains special character '@' and hence we put in the hex value of it else, it gives an error
+const dbURI = 'mongodb+srv://bunty:bunty@nodejstut.wgjmz.mongodb.net/node-tuts?retryWrites=true&w=majority'
+// this is an async method, which gives back a promise, which is why we invoke the then() method
+mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true }) //* arg2 is to remove the deprecation warnings
+    .then((result) => app.listen(3000))
+    .catch((err) => console.log(err))
 //* register view engine
 app.set('view engine', 'ejs')
 
@@ -12,7 +25,7 @@ app.set('view engine', 'ejs')
 // app.set('views', 'myviews')
 
 //* listen for requests
-app.listen(3000)
+// app.listen(3000)
 
 // * Middleware
 // app.use((req, res, next) => {
@@ -42,16 +55,7 @@ app.use(express.static('public'))
 
 
 app.get('/', (req, res) => {
-    // res.send('<p>Home Page</p>')
-    //* by default, sendFile checks for absolute path. thus in arg2 we explicitly mention the root which is the relative path
-    // res.sendFile('./views/index.html', { root: __dirname })
-    const blogs = [
-        { title: 'Yoshi finds eggs', snippet: 'Lorem ipsum dolor sit amet consectetur' },
-        { title: 'Mario finds stars', snippet: 'Lorem ipsum dolor sit amet consectetur' },
-        { title: 'How to defeat bowser', snippet: 'Lorem ipsum dolor sit amet consectetur' },
-    ];
-    res.render('index', { title: 'Home', blogs })
-    //* here arg2 is an object  which is a map. these attributes can be accessed in the ejs file
+    res.redirect('/blogs')
 })
 
 
@@ -60,15 +64,29 @@ app.get('/about', (req, res) => {
     res.render('about', { title: 'About' })
 })
 
+// ? BLOGS
+
+app.get('/blogs', (req, res) => {
+    // const blog = new Blog({
+    //     title: 'blog2',
+    //     snippet: 'snippet2',
+    //     body: 'body2'
+    // })
+    // blog.save()
+    Blog.find().sort({ createdAt: -1 })
+        .then((result) => {
+            res.render('index', { title: 'All Blogs', blogs: result })
+
+        })
+        .catch((err) => {
+            console.log(err)
+        })
+})
+
 app.get('/blogs/create', (req, res) => {
     res.render('create', { title: 'Create a new Blog' })
 })
 
-
-// //* Redirects
-// app.get('/info', (req, res) => {
-//     res.redirect('/about')
-// })
 
 
 //* 404 page
