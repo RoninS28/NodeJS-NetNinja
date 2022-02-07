@@ -2,6 +2,7 @@ const express = require('express')
 const morgan = require('morgan')
 const mongoose = require('mongoose')
 const Blog = require('./models/blog')
+const { render } = require('express/lib/response')
 
 
 
@@ -49,7 +50,7 @@ app.set('view engine', 'ejs')
 // if you try to access a css file in inspect element -> network, it is not available and gives a 404 error
 // thus anything in the folder mentioned as an arg is made static i.e public
 app.use(express.static('public'))
-
+app.use(express.urlencoded({ extended: true })) //* this is so that for post methods, we can get the passed data in an object -- req.body
 // app.use(morgan('tiny'))
 
 
@@ -86,6 +87,44 @@ app.get('/blogs', (req, res) => {
 app.get('/blogs/create', (req, res) => {
     res.render('create', { title: 'Create a new Blog' })
 })
+
+app.post('/blogs', (req, res) => {
+    const blog = new Blog(req.body)
+    blog.save()
+        .then((result) => {
+            res.redirect('/blogs')
+        })
+        .catch((err) => {
+            console.log(err)
+        })
+})
+
+app.get('/blogs/:id', (req, res) => {
+    const id = req.params.id
+    Blog.findById(id)
+        .then((result) => {
+            res.render('details', { title: 'Blog Details', blog: result })
+        })
+        .catch((err) => {
+            console.log(err)
+        })
+})
+
+
+app.delete('/blogs/:id', (req, res) => {
+    const id = req.params.id
+    Blog.findByIdAndDelete(id)
+        .then((result) => {
+            // since we are getting an ajax response, we cannot directly redirect it
+            // thus we send a json response
+            res.json({ redirect: '/blogs' })
+        })
+        .catch((err) => {
+            console.log(err)
+        })
+})
+
+
 
 
 
